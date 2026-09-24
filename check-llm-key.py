@@ -39,7 +39,7 @@ if gem:
     os.environ.setdefault("GOOGLE_API_KEY", gem)
     provider, candidates = "google_genai", ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.6-flash", "gemini-3.7-flash"]
 else:
-    provider, candidates = "groq", ["llama-3.3-70b-versatile", "openai/gpt-oss-120b", "llama-3.1-8b-instant"]
+    provider, candidates = "groq", ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "llama-3.3-70b-versatile"]
 
 llm = None
 for name in candidates:

@@ -58,7 +58,7 @@ if os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY"):
     candidates = ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.6-flash", "gemini-3.7-flash"]
 else:
     provider = "groq"
-    candidates = ["llama-3.3-70b-versatile", "openai/gpt-oss-120b", "llama-3.1-8b-instant"]
+    candidates = ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "llama-3.3-70b-versatile"]
 
 def text_of(message):
     """Pull plain text out of a reply. Newer Gemini models return a list of blocks

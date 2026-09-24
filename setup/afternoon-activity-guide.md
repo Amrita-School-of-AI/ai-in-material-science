@@ -207,6 +207,22 @@ difference between a useful instrument and a confident liar.
 
 ---
 
+### Step 6. The research-grade version (demonstration)
+
+Nothing to type. You watch **ChemGraph**, an agent framework from Argonne National
+Laboratory, take the same kind of sentence and drive a real calculation.
+
+!!! note
+    **You should see** it build water, optimise the geometry and report
+    **1.879 eV**, converged in 4 steps. That is the same number your own agent produced
+    a few minutes earlier, from a research tool with thirty times the machinery.
+
+The point is not that ChemGraph is better. It is that the thing you built in twenty
+minutes and the thing a national laboratory ships are the same three parts: a model,
+tools, and a loop.
+
+---
+
 # Part 5. Where this goes
 
 **16:50.** Self-driving laboratories, foundation models for matter, and what to learn
