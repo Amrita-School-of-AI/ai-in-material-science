@@ -72,11 +72,21 @@ python check-llm-key.py
 
 That tests six things in order and tells you exactly which one fails.
 
-**A note on model names.** They change every few months, and free quotas differ wildly
-between them. The notebook tries a list and keeps the first that answers, so it keeps
-working as names change. At the time of writing, avoid `gemini-3.8-flash` for teaching:
-its free tier allows twenty requests per day, which one person exhausts in a single
-exercise.
+A free key from `console.groq.com` also works; write `GROQ_API_KEY=` instead. You can
+put several keys in the same file, and the notebook will use whichever works.
+
+**A note on model names.** They change every few months, and free quotas differ wildly.
+Nothing in the notebooks names a model. `workshop_llm.py` holds the list and tries
+providers in order, Gemini then Groq then OpenAI, keeping the first that answers and
+printing which it chose. If a provider has an outage during a class, the next one takes
+over with no edit.
+
+Two traps worth knowing, both verified on 24 September 2026:
+
+- **`gemini-3.8-flash` allows twenty requests per day** on the free tier, which one
+  person exhausts in a single exercise. Use the Flash-Lite models.
+- **A free Groq key cannot reach the Llama models**; they return 404 as Enterprise tier.
+  Use `openai/gpt-oss-120b`.
 
 ## What Hands-on 1 does
 

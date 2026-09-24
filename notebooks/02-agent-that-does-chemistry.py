@@ -12,76 +12,29 @@
 # You need the free API key you created before the workshop. Nothing here costs money.
 
 # %%
-import os, json
+import os, json, sys
 from pathlib import Path
-import warnings
 
-# Flash-Lite ignores the temperature setting and says so on every call. True, and not
-# worth four lines on screen.
-warnings.filterwarnings("ignore", message=".*fixed sampling defaults.*")
+# workshop_llm.py sits beside the notebooks folder and knows which providers and models
+# actually work today. Nothing below names a model, because model names keep changing.
+sys.path.insert(0, str(Path("..").resolve()))
+from workshop_llm import get_llm, text_of, load_keys
 
-# Read the key from the .env file you made during setup. We look in the usual places
-# so it does not matter exactly where you put it.
-for candidate in [Path(".env"), Path("../.env"), Path("../../.env"), Path.home() / "ai-materials/.env"]:
-    if candidate.exists():
-        for line in candidate.read_text().splitlines():
-            if "=" in line and not line.strip().startswith("#"):
-                k, v = line.split("=", 1)
-                os.environ.setdefault(k.strip(), v.strip())
-        print("read key file:", candidate)
-        break
-
-have_gemini = bool(os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY"))
-have_groq = bool(os.environ.get("GROQ_API_KEY"))
-print("Gemini key found:", have_gemini, " Groq key found:", have_groq)
-if not (have_gemini or have_groq):
-    print("\nNo key yet. Paste it in the next cell and run it.")
-
-# %%
-# If the check above said no key, uncomment the line for your provider and paste it in.
-# os.environ["GEMINI_API_KEY"] = "paste-your-key-here"
-# os.environ["GROQ_API_KEY"] = "paste-your-key-here"
+found = load_keys()
+print("keys found:", ", ".join(found) if found else "none yet")
+if not found:
+    print("\nPut your key in a file called .env, one line:\n  GEMINI_API_KEY=your-key-here")
 
 # %% [markdown]
 # ## 1. One call to a language model
 #
 # Before any agent, see the plain call. The model gets text and returns text.
+#
+# `get_llm()` tries your free Gemini key first, then Groq, and keeps whichever answers.
+# It prints which one it chose.
 
 # %%
-from langchain.chat_models import init_chat_model
-
-# Model names change every few months, so try a short list and keep the first that
-# answers. If they all fail, the provider's console lists what your key can reach.
-if os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY"):
-    os.environ.setdefault("GOOGLE_API_KEY", os.environ.get("GEMINI_API_KEY", ""))
-    provider = "google_genai"
-    candidates = ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.6-flash", "gemini-3.7-flash"]
-else:
-    provider = "groq"
-    candidates = ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "llama-3.3-70b-versatile"]
-
-def text_of(message):
-    """Pull plain text out of a reply. Newer Gemini models return a list of blocks
-    rather than a plain string, and printing that raw fills the screen."""
-    c = message.content
-    if isinstance(c, str):
-        return c
-    return " ".join(b.get("text", "") for b in c if isinstance(b, dict)).strip()
-
-llm = None
-for name in candidates:
-    try:
-        trial = init_chat_model(name, model_provider=provider, temperature=0)
-        trial.invoke("Reply with the single word: ready")
-        llm = trial
-        print("using", provider, name)
-        break
-    except Exception as e:
-        print("could not use", name, "|", str(e)[:90])
-
-if llm is None:
-    raise SystemExit("No model answered. Check the key in .env, and check the provider "
-                     "console for the model names your key can reach.")
+llm = get_llm()
 
 # %%
 print(text_of(llm.invoke("In one sentence, what does a chemist use SMILES notation for?")))
@@ -90,7 +43,8 @@ print(text_of(llm.invoke("In one sentence, what does a chemist use SMILES notati
 # Now ask it something it cannot know reliably.
 
 # %%
-print(text_of(llm.invoke("What is the exact molecular weight of paracetamol, to three decimal places? Answer with the number only.")))
+print(text_of(llm.invoke("What is the exact molecular weight of paracetamol, to three "
+                         "decimal places? Answer with the number only.")))
 
 # %% [markdown]
 # Run that cell two or three times. The answer may wobble, and it may be wrong in the
