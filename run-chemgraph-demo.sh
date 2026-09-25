@@ -16,8 +16,14 @@ export GROQ_API_KEY="$(key GROQ_API_KEY)"
 export OPENAI_API_KEY="$(key OPENAI_API_KEY)"
 
 Q="${1:-Build water from SMILES O, optimize with EMT, and report the final energy.}"
-CG="$HOME/chemgraph-demo/bin/chemgraph"
-[ -x "$CG" ] || { echo "ChemGraph is not installed at ~/chemgraph-demo"; exit 1; }
+# ChemGraph lives inside the project. Look beside us, then one level up, so this works
+# from run/ and from material/ alike.
+CG=""
+for c in "./env/chemgraph/bin/chemgraph" "../env/chemgraph/bin/chemgraph" \
+         "../../env/chemgraph/bin/chemgraph"; do
+  [ -x "$c" ] && { CG="$(cd "$(dirname "$c")" && pwd)/chemgraph"; break; }
+done
+[ -n "$CG" ] || { echo "ChemGraph not found. Rebuild it with: bash tools/build-chemgraph-env.sh"; exit 1; }
 
 OUT="$(mktemp)"
 trap 'rm -f "$OUT"' EXIT
